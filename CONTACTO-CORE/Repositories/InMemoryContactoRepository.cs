@@ -1,4 +1,4 @@
-﻿using CONTACTO_CORE.Domain.Model;
+using CONTACTO_CORE.Domain.Model;
 using System.Collections.Concurrent;
 
 namespace CONTACTO_CORE.Repositories
@@ -7,7 +7,9 @@ namespace CONTACTO_CORE.Repositories
     {
         private readonly ConcurrentDictionary<int, Contacto> _contactos = new();
 
-        private int _id = 0;
+        private readonly ConcurrentDictionary<string, byte> _telefonos = new();
+
+        private int _idSiguiente = 0;
 
         public List<Contacto> ObtenerTodos()
         {
@@ -19,19 +21,15 @@ namespace CONTACTO_CORE.Repositories
         public Contacto? ObtenerPorId(int id)
         {
             _contactos.TryGetValue(id, out var contacto);
-
             return contacto;
         }
 
-        public bool ExisteTelefono(string telefono)
+        public Contacto? AgregarSiNoExiste(string nombre, string telefono)
         {
-            return _contactos.Values
-                .Any(x => x.Telefono == telefono);
-        }
+            if (!_telefonos.TryAdd(telefono, 0))
+                return null;
 
-        public Contacto Agregar(string nombre, string telefono)
-        {
-            var id = Interlocked.Increment(ref _id);
+            var id = Interlocked.Increment(ref _idSiguiente);
 
             var contacto = new Contacto
             {

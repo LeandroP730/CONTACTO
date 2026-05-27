@@ -1,4 +1,4 @@
-﻿using CONTACTO_CORE.Domain.Model;
+using CONTACTO_CORE.Domain.Model;
 
 namespace CONTACTO_CORE.Repositories
 {
@@ -6,7 +6,6 @@ namespace CONTACTO_CORE.Repositories
     {
         List<Contacto> ObtenerTodos();
         Contacto? ObtenerPorId(int id);
-        bool ExisteTelefono(string telefono);
-        Contacto Agregar(string nombre, string telefono);
+        Contacto? AgregarSiNoExiste(string nombre, string telefono);
     }
 }

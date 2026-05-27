@@ -1,12 +1,17 @@
-﻿using System.Text.Json;
+using CONTACTO_API.Models;
+using System.Text.Json;
 
 namespace CONTACTO_API.Middleware
 {
     public class ErrorHandlingMiddleware
     {
         private readonly RequestDelegate _next;
-
         private readonly ILogger<ErrorHandlingMiddleware> _logger;
+
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
 
         public ErrorHandlingMiddleware(
             RequestDelegate next,
@@ -29,14 +34,13 @@ namespace CONTACTO_API.Middleware
                 context.Response.StatusCode = 500;
                 context.Response.ContentType = "application/json";
 
-                var response = new
+                var response = new ErrorResponse
                 {
-                    message = "Ocurrió un error interno"
+                    Tipo = "internal_error",
+                    Mensaje = "Ocurrió un error interno"
                 };
 
-                var json = JsonSerializer.Serialize(response);
-
-                await context.Response.WriteAsync(json);
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response, JsonOptions));
             }
         }
     }

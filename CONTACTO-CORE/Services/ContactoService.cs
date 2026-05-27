@@ -1,8 +1,7 @@
-﻿using CONTACTO_CORE.Domain.Model;
+using CONTACTO_CORE.Domain.Model;
 using CONTACTO_CORE.Domain.Response;
 using CONTACTO_CORE.Dto;
 using CONTACTO_CORE.Repositories;
-using Microsoft.Extensions.Logging;
 
 namespace CONTACTO_CORE.Services
 {
@@ -17,9 +16,7 @@ namespace CONTACTO_CORE.Services
 
         public List<ContactoDto> Obtener()
         {
-            var contactos = _repository.ObtenerTodos();
-
-            return contactos.Select(Map).ToList();
+            return _repository.ObtenerTodos().Select(Map).ToList();
         }
 
         public Result<ContactoDto> ObtenerPorId(int id)
@@ -39,9 +36,9 @@ namespace CONTACTO_CORE.Services
 
         public Result<ContactoDto> Crear(CrearContactoRequest request)
         {
-            var existe = _repository.ExisteTelefono(request.Telefono);
+            var contacto = _repository.AgregarSiNoExiste(request.Nombre, request.Telefono);
 
-            if (existe)
+            if (contacto == null)
             {
                 return Result<ContactoDto>.Failure(
                     "El teléfono ya existe",
@@ -49,22 +46,14 @@ namespace CONTACTO_CORE.Services
                 );
             }
 
-            var contacto = _repository.Agregar(
-                request.Nombre,
-                request.Telefono
-            );
-
             return Result<ContactoDto>.Success(Map(contacto));
         }
 
-        private ContactoDto Map(Contacto contacto)
+        private static ContactoDto Map(Contacto contacto) => new()
         {
-            return new ContactoDto
-            {
-                Id = contacto.Id,
-                Nombre = contacto.Nombre,
-                Telefono = contacto.Telefono
-            };
-        }
+            Id = contacto.Id,
+            Nombre = contacto.Nombre,
+            Telefono = contacto.Telefono
+        };
     }
 }
